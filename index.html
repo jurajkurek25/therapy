@@ -6,27 +6,27 @@
 <title>Teraplan — Kredity na terapiu, ktorá vám sadne</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
 <style>
   :root {
-    --bg: #f4f1ec;
-    --bg-2: #ebe6dd;
-    --ink: #14110d;
-    --ink-2: #2a2520;
-    --muted: #6b655d;
-    --muted-2: #948e85;
-    --rule: #d9d3c7;
-    --rule-2: #c5bdaf;
-    --accent: oklch(0.52 0.07 165);
-    --accent-ink: oklch(0.32 0.05 165);
-    --accent-tint: oklch(0.93 0.03 165);
-    --paper: #fbfaf6;
+    --bg: #f2f6f4;
+    --bg-2: #e5ede8;
+    --ink: #1b2e25;
+    --ink-2: #2d4438;
+    --muted: #567064;
+    --muted-2: #88a496;
+    --rule: #c8d8cf;
+    --rule-2: #b4c9bc;
+    --accent: oklch(0.56 0.12 165);
+    --accent-ink: oklch(0.34 0.09 165);
+    --accent-tint: oklch(0.95 0.04 165);
+    --paper: #f8fbf9;
     --serif: 'Instrument Serif', 'Times New Roman', serif;
-    --sans: 'Inter', system-ui, sans-serif;
-    --mono: 'JetBrains Mono', ui-monospace, monospace;
+    --sans: 'DM Sans', system-ui, sans-serif;
+    --mono: 'DM Mono', ui-monospace, monospace;
   }
   * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
   html, body { margin: 0; padding: 0; }
@@ -1602,10 +1602,10 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
 }/*EDITMODE-END*/;
 
 const ACCENTS = {
-  sage:    { c: 'oklch(0.52 0.07 165)', cInk: 'oklch(0.32 0.05 165)', cTint: 'oklch(0.93 0.03 165)' },
-  ink:     { c: '#14110d',                cInk: '#14110d',              cTint: '#e8e2d6' },
-  rust:    { c: 'oklch(0.52 0.10 45)',    cInk: 'oklch(0.34 0.08 45)',  cTint: 'oklch(0.93 0.03 45)' },
-  cobalt:  { c: 'oklch(0.48 0.10 250)',   cInk: 'oklch(0.30 0.08 250)', cTint: 'oklch(0.93 0.03 250)' }
+  sage:    { c: 'oklch(0.56 0.12 165)', cInk: 'oklch(0.34 0.09 165)', cTint: 'oklch(0.95 0.04 165)' },
+  ink:     { c: '#1b2e25',               cInk: '#1b2e25',              cTint: '#e5ede8' },
+  rust:    { c: 'oklch(0.52 0.10 45)',   cInk: 'oklch(0.34 0.08 45)',  cTint: 'oklch(0.93 0.03 45)' },
+  cobalt:  { c: 'oklch(0.48 0.10 250)',  cInk: 'oklch(0.30 0.08 250)', cTint: 'oklch(0.93 0.03 250)' }
 };
 
 function Brand() {
@@ -1800,7 +1800,7 @@ const STEPS = [
   {
     n: '01', tag: 'Setup · 2 min',
     title: 'Vyberiete si plán',
-    desc: 'Mesačná suma, ktorú vám sedí — od 11,90 € do 62,90 €. Z každého základu sa 1 € pretáva na 1 kredit, plus jeden transparentný servisný poplatok 2,90 €. Bez viazanosti.'
+    desc: 'Mesačná suma, ktorú vám sedí — od 11,90 € do 62,90 €. Z každého základu sa 1 € pretáva na 1 kredit, plus jeden transparentný servisný poplatok 2,40 €. Bez viazanosti.'
   },
   {
     n: '02', tag: 'Mesačne automaticky',
@@ -2048,7 +2048,7 @@ const PLANS = [
 ];
 
 function Pricing({ onBuy }) {
-  const SERVICE_FEE = 2.90;
+  const SERVICE_FEE = 2.40;
   const [custom, setCustom] = useState(45);
   const presets = [15, 25, 45, 75, 100];
   const fmt = (n) => (Math.round(n * 100) / 100).toFixed(2).replace('.', ',');
@@ -2059,7 +2059,7 @@ function Pricing({ onBuy }) {
         <div className="section-meta">
           <span className="eyebrow">§ 06 · Plány</span>
           <p style={{ margin: 0, color: 'var(--ink-2)', fontSize: 16, maxWidth: '52ch' }}>
-            Každý plán je o tom, koľko mesačne odložíte do peňaženky. Kurz je rovnaký u všetkých: <strong>1 € = 1 kredit</strong>. K nemu si pripočítavame jeden transparentný servisný poplatok <strong>2,90 €</strong> — ide na chod platformy, AI poradcu a podporu.
+            Každý plán je o tom, koľko mesačne odložíte do peňaženky. Kurz je rovnaký u všetkých: <strong>1 € = 1 kredit</strong>. K nemu si pripočítavame jeden transparentný servisný poplatok <strong>2,40 €</strong> — ide na chod platformy, AI poradcu a podporu.
           </p>
         </div>
       </div>
@@ -2087,7 +2087,7 @@ function Pricing({ onBuy }) {
                 </div>
                 <div className="row fee">
                   <span className="label">Servisný poplatok <small>chod platformy, AI, podpora</small></span>
-                  <span className="val">+ 2,90 €</span>
+                  <span className="val">+ 2,40 €</span>
                 </div>
               </div>
             </div>
@@ -2146,7 +2146,7 @@ function Pricing({ onBuy }) {
               </div>
               <div className="row fee">
                 <span className="label">Servisný poplatok <small>chod platformy, AI, podpora</small></span>
-                <span className="val">+ 2,90 €</span>
+                <span className="val">+ 2,40 €</span>
               </div>
             </div>
           </div>
@@ -2164,7 +2164,7 @@ function Pricing({ onBuy }) {
 
       <div className="pricing-foot">
         <div>
-          <strong>Prečo 2,90 € servisný poplatok?</strong>
+          <strong>Prečo 2,40 € servisný poplatok?</strong>
           Z kreditov nezarábame ani cent — tie sú vaše a putujú 1:1 k terapeutovi. Poplatok platí doménu, server, AI poradcu a ľudskú podporu. Bez neho by sa Teraplan o pár mesiacov vypol — a to by nepomohlo nikomu. Menej ako jedna káva mesačne za to, že vaše desiatky až stovky eur v kreditoch neprepadnú.
         </div>
         <div>
@@ -2218,11 +2218,11 @@ function Support() {
 const FAQS = [
   {
     q: 'Čo presne znamená „1 € = 1 kredit"?',
-    a: 'Každé euro, ktoré pôjde do vašej peňaženky, sa pretaví na 1 kredit. V pláne Stabilita zaplatíte 32,90 € mesačne — z toho 30 € putuje 1:1 do vašich kreditov a 2,90 € je servisný poplatok za chod platformy. Žiadne marže, žiadny menový kurz, žiadny rozdiel medzi tým, koľko ste „nasporili" a koľko reálne vyberiete.'
+    a: 'Každé euro, ktoré pôjde do vašej peňaženky, sa pretaví na 1 kredit. V pláne Stabilita zaplatíte 32,40 € mesačne — z toho 30 € putuje 1:1 do vašich kreditov a 2,40 € je servisný poplatok za chod platformy. Žiadne marže, žiadny menový kurz, žiadny rozdiel medzi tým, koľko ste „nasporili" a koľko reálne vyberiete.'
   },
   {
-    q: 'Prečo ešte aj servisný poplatok 2,90 €?',
-    a: 'Aby Teraplan o pár mesiacov nezhasol. Z kreditov nezarábame ani cent — tie sú vaše a putujú 1:1 k partnerovi. Poplatok 2,90 € (menej ako jedna káva mesačne) platí doménu, server, AI poradcu, e-mailovú a telefonickú podporu a vyjednávanie B2B podmienok s Hedepy, Ksebe a Mojra. Je rovnaký pre všetky plány — neškáluje sa s vašou sumou. Nechceme robiť produkt z presvedčenia a o tri mesiace ho vypnúť.'
+    q: 'Prečo ešte aj servisný poplatok 2,40 €?',
+    a: 'Aby Teraplan o pár mesiacov nezhasol. Z kreditov nezarábame ani cent — tie sú vaše a putujú 1:1 k partnerovi. Poplatok 2,40 € (menej ako jedna káva mesačne) platí doménu, server, AI poradcu, e-mailovú a telefonickú podporu a vyjednávanie B2B podmienok s Hedepy, Ksebe a Mojra. Je rovnaký pre všetky plány — neškáluje sa s vašou sumou. Nechceme robiť produkt z presvedčenia a o tri mesiace ho vypnúť.'
   },
   {
     q: 'Kde absolvujem samotné sedenie?',
@@ -2344,6 +2344,7 @@ function WaitlistModal({ onClose }) {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') onClose(); };
@@ -2355,14 +2356,17 @@ function WaitlistModal({ onClose }) {
     e.preventDefault();
     if (!email || loading) return;
     setLoading(true);
+    setError(false);
     try {
       const url = 'https://docs.google.com/forms/d/e/1FAIpQLScpufBINHDezdEymlN8xvoQlqWO-uHpNPXgBjijgnVOhewHSQ/formResponse';
-      const body = new FormData();
-      body.append('entry.375531769', email);
-      await fetch(url, { method: 'POST', mode: 'no-cors', body });
-    } catch (_) {}
-    setLoading(false);
-    setSubmitted(true);
+      const body = new URLSearchParams({ 'entry.375531769': email });
+      const res = await fetch(url, { method: 'POST', mode: 'no-cors', body });
+      setLoading(false);
+      setSubmitted(true);
+    } catch (_) {
+      setLoading(false);
+      setError(true);
+    }
   };
 
   return (
@@ -2382,7 +2386,7 @@ function WaitlistModal({ onClose }) {
                 type="email"
                 placeholder="vas@email.sk"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => { setEmail(e.target.value); setError(false); }}
                 required
                 autoFocus
               />
@@ -2390,7 +2394,12 @@ function WaitlistModal({ onClose }) {
                 {loading ? 'Odosielam…' : 'Dajte mi vedieť →'}
               </button>
             </form>
-            <p className="wl-note">Žiadny spam. Jeden e-mail keď spustíme.</p>
+            {error && (
+              <p className="wl-note" style={{ color: 'oklch(0.45 0.14 25)' }}>
+                Nastala chyba pri odosielaní. Skúste neskôr alebo nás kontaktujte na <a href="mailto:hello@teraplan.eu" style={{ color: 'inherit', textDecoration: 'underline' }}>hello@teraplan.eu</a>.
+              </p>
+            )}
+            {!error && <p className="wl-note">Žiadny spam. Jeden e-mail keď spustíme.</p>}
           </>
         ) : (
           <>

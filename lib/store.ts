@@ -42,6 +42,22 @@ export interface User {
   customAmount: number;
   credits: number;
   memberSince: string;
+  sosDebt: number;        // credits currently owed (positive number, e.g. 60)
+  memberMonths: number;   // paid months completed
+}
+
+export const SOS_VESTING_MONTHS = 3;
+export const SOS_LIMIT = 60; // max debt in credits (one session)
+
+/** True when user has earned the SOS feature and has no outstanding debt */
+export function isSosEligible(user: User): boolean {
+  return user.memberMonths >= SOS_VESTING_MONTHS && user.sosDebt === 0;
+}
+
+/** Months until SOS unlocks (0 if already unlocked or in debt) */
+export function sosMonthsLeft(user: User): number {
+  if (user.sosDebt > 0) return 0;
+  return Math.max(0, SOS_VESTING_MONTHS - user.memberMonths);
 }
 
 const DEFAULT_USER: User = {
@@ -51,6 +67,8 @@ const DEFAULT_USER: User = {
   customAmount: 45,
   credits: 47,
   memberSince: '2026-01-01',
+  sosDebt: 0,
+  memberMonths: 5,
 };
 
 const DEFAULT_TRANSACTIONS: Transaction[] = [
@@ -62,6 +80,7 @@ const DEFAULT_TRANSACTIONS: Transaction[] = [
   { id: 't6', date: '2026-04-20', description: 'Kód → Ksebe · sedenie', delta: -60, balance: 0, type: 'debit' },
   { id: 't7', date: '2026-04-20', description: 'Dokup kreditov', delta: 17, balance: 17, type: 'topup' },
   { id: 't8', date: '2026-05-01', description: 'Máj · plán Stabilita', delta: 30, balance: 47, type: 'credit' },
+  { id: 't9', date: '2026-05-01', description: 'SOS Mínus odomknutý po 3 mesiacoch', delta: 0, balance: 47, type: 'credit' },
 ];
 
 const DEFAULT_VOUCHERS: Voucher[] = [

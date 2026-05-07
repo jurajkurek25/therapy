@@ -5,7 +5,8 @@ import Link from 'next/link';
 import AppNav from '@/components/AppNav';
 import AppSidebar from '@/components/AppSidebar';
 import MobileNav from '@/components/MobileNav';
-import { isLoggedIn, getUser, getTransactions, PLAN_LABELS, type Transaction, type User } from '@/lib/store';
+import { isLoggedIn, getUser, getTransactions, PLAN_LABELS, isSosEligible, type Transaction, type User } from '@/lib/store';
+import SosWidget from '@/components/SosWidget';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -103,6 +104,14 @@ export default function DashboardPage() {
               <div className="card-value" style={{ fontSize: 36 }}>1. 6.</div>
               <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 6 }}>2026 · {planCredits} kreditov</div>
             </div>
+          </div>
+
+          {/* SOS Mínus */}
+          <div style={{ marginBottom: 32 }}>
+            <div style={{ fontFamily: 'var(--mono)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--muted)', marginBottom: 16 }}>
+              SOS Mínus · záchranné koleso
+            </div>
+            <SosWidget user={user} />
           </div>
 
           {/* Quick actions */}

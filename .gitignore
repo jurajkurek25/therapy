@@ -1,0 +1,9 @@
+# Next.js
+.next/
+out/
+node_modules/
+npm-debug.log*
+.env*
+.vercel
+*.tsbuildinfo
+next-env.d.ts

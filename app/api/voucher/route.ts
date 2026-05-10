@@ -3,33 +3,50 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
-const PARTNERS: Record<string, { name: string; amount: number }> = {
-  hedepy: { name: 'Hedepy', amount: 60 },
-  ksebe:  { name: 'Ksebe',  amount: 60 },
-  mojra:  { name: 'Mojra',  amount: 60 },
-};
-
 const SOS_LIMIT = 60;
 const SOS_VESTING = 3;
 
-function genCode(): string {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  const seg = () => Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-  return `TP-${seg()}-${seg()}-${seg()}`;
+// GET — available catalog (what users can claim)
+export async function GET() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const available = await prisma.voucher.findMany({
+    where: { userId: null, used: false },
+    select: { partnerId: true, partnerName: true, amount: true },
+  });
+
+  // Group by partnerId + amount, count stock
+  const map: Record<string, { partnerId: string; partnerName: string; amount: number; stock: number }> = {};
+  for (const v of available) {
+    const key = `${v.partnerId}:${v.amount}`;
+    if (!map[key]) map[key] = { partnerId: v.partnerId, partnerName: v.partnerName, amount: v.amount, stock: 0 };
+    map[key].stock++;
+  }
+
+  return NextResponse.json({ catalog: Object.values(map) });
 }
 
+// POST — claim a voucher from pool
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { partnerId, amount, useSos } = await req.json();
-  const partner = PARTNERS[partnerId?.toLowerCase()];
-  if (!partner) return NextResponse.json({ error: 'Neplatný partner.' }, { status: 400 });
+  if (!partnerId) return NextResponse.json({ error: 'Chýba partner.' }, { status: 400 });
 
-  const voucherAmount = amount || partner.amount;
   const userId = (session.user as any).id;
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) return NextResponse.json({ error: 'Používateľ nenájdený.' }, { status: 404 });
+
+  // Find next available voucher in pool
+  const where: any = { userId: null, used: false, partnerId: partnerId.toLowerCase() };
+  if (amount) where.amount = Number(amount);
+
+  const pool = await prisma.voucher.findFirst({ where, orderBy: { createdAt: 'asc' } });
+  if (!pool) return NextResponse.json({ error: 'Kódy pre tohto partnera momentálne nie sú k dispozícii.' }, { status: 404 });
+
+  const voucherAmount = pool.amount;
 
   if (useSos) {
     if (user.memberMonths < SOS_VESTING) {
@@ -39,42 +56,44 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Máte nesplatený SOS dlh.' }, { status: 403 });
     }
 
-    const code = genCode();
     const [voucher] = await prisma.$transaction([
-      prisma.voucher.create({
-        data: { userId, partnerId: partnerId.toLowerCase(), partnerName: partner.name, code, amount: SOS_LIMIT },
+      prisma.voucher.update({
+        where: { id: pool.id },
+        data: { userId, claimedAt: new Date() },
       }),
       prisma.user.update({
         where: { id: userId },
         data: { sosDebt: { increment: SOS_LIMIT } },
       }),
       prisma.transaction.create({
-        data: { userId, amount: SOS_LIMIT, type: 'sos', description: `SOS kód → ${partner.name} · sedenie na dlh` },
+        data: { userId, amount: SOS_LIMIT, type: 'sos', description: `SOS kód → ${pool.partnerName} · sedenie na dlh` },
       }),
     ]);
-    return NextResponse.json({ code: voucher.code, amount: SOS_LIMIT, sos: true });
+    return NextResponse.json({ code: pool.code, amount: SOS_LIMIT, sos: true, voucherId: pool.id });
   }
 
   if (user.credits < voucherAmount) {
     return NextResponse.json({ error: `Nedostatok kreditov. Chýba ${voucherAmount - user.credits} kr.` }, { status: 403 });
   }
 
-  const code = genCode();
-  const [voucher] = await prisma.$transaction([
-    prisma.voucher.create({
-      data: { userId, partnerId: partnerId.toLowerCase(), partnerName: partner.name, code, amount: voucherAmount },
+  await prisma.$transaction([
+    prisma.voucher.update({
+      where: { id: pool.id },
+      data: { userId, claimedAt: new Date() },
     }),
     prisma.user.update({
       where: { id: userId },
       data: { credits: { decrement: voucherAmount } },
     }),
     prisma.transaction.create({
-      data: { userId, amount: -voucherAmount, type: 'debit', description: `Kód → ${partner.name}` },
+      data: { userId, amount: -voucherAmount, type: 'debit', description: `Kód → ${pool.partnerName}` },
     }),
   ]);
-  return NextResponse.json({ code: voucher.code, amount: voucherAmount, sos: false });
+
+  return NextResponse.json({ code: pool.code, amount: voucherAmount, sos: false, voucherId: pool.id });
 }
 
+// PATCH — mark voucher as used
 export async function PATCH(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

@@ -1,8 +1,8 @@
 module.exports = {
   apps: [{
     name: 'teraplan',
-    script: 'node_modules/.bin/next',
-    args: 'start -p 3210 -H 127.0.0.1',
+    script: '/home/teraplan/htdocs/teraplan.eu/start.sh',
+    interpreter: 'bash',
     cwd: '/home/teraplan/htdocs/teraplan.eu',
     env: {
       NODE_ENV: 'production',

@@ -6,7 +6,7 @@ module.exports = {
     cwd: '/home/user/therapy',
     env: {
       NODE_ENV: 'production',
-      PORT: 9999,
+      PORT: 3210,
       HOSTNAME: '127.0.0.1',
     },
     max_memory_restart: '512M',

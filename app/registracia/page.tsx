@@ -1,6 +1,6 @@
 'use client';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Brand from '@/components/Brand';
 import { setLoggedIn, saveUser, getUser } from '@/lib/store';
@@ -11,13 +11,19 @@ const PLANS = [
   { id: 'rytmus', label: 'Rytmus', monthly: 60, total: '62,90', credits: 60 },
 ];
 
-export default function RegisterPage() {
+function RegisterContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [step, setStep] = useState<1 | 2>(1);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [plan, setPlan] = useState<'start' | 'stabilita' | 'rytmus'>('stabilita');
+
+  useEffect(() => {
+    const p = searchParams.get('plan');
+    if (p === 'start' || p === 'stabilita' || p === 'rytmus') setPlan(p);
+  }, [searchParams]);
   const [loading, setLoading] = useState(false);
 
   const handleStep1 = (e: React.FormEvent) => {
@@ -129,5 +135,13 @@ export default function RegisterPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={null}>
+      <RegisterContent />
+    </Suspense>
   );
 }

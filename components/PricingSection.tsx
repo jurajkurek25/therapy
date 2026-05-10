@@ -1,9 +1,10 @@
 'use client';
 import { useState } from 'react';
-import WaitlistModal from './WaitlistModal';
+import Link from 'next/link';
 
 const PLANS = [
   {
+    id: 'start',
     name: 'Štart', tag: 'Pre tých, ktorí chcú začať postupne.', monthly: 9,
     feats: [
       ['9 kreditov mesačne (1 € = 1 kredit)', true],
@@ -16,6 +17,7 @@ const PLANS = [
     cta: 'Začať so Štartom',
   },
   {
+    id: 'stabilita',
     name: 'Stabilita', tag: 'Sedenie každé dva mesiace bez dokupu.', monthly: 30, featured: true,
     feats: [
       ['30 kreditov mesačne (1 € = 1 kredit)', true],
@@ -28,6 +30,7 @@ const PLANS = [
     cta: 'Aktivovať Stabilitu',
   },
   {
+    id: 'rytmus',
     name: 'Rytmus', tag: 'Sedenie každý mesiac — pravidelná hygiena.', monthly: 60,
     feats: [
       ['60 kreditov mesačne (1 € = 1 kredit)', true],
@@ -45,7 +48,6 @@ const fmt = (n: number) => (Math.round(n * 100) / 100).toFixed(2).replace('.', '
 
 export default function PricingSection() {
   const [custom, setCustom] = useState(45);
-  const [open, setOpen] = useState(false);
   const presets = [15, 25, 45, 75, 100];
 
   return (
@@ -92,7 +94,9 @@ export default function PricingSection() {
                   <li key={i}><span>{bold ? <strong>{label}</strong> : label}</span></li>
                 ))}
               </ul>
-              <button className="plan-cta" onClick={() => setOpen(true)}>{p.cta} · {fmt(total)} €/mes.</button>
+              <Link href={`/registracia?plan=${p.id}`} className="plan-cta" style={{ display: 'block', textAlign: 'center', textDecoration: 'none' }}>
+                {p.cta} · {fmt(total)} €/mes.
+              </Link>
             </div>
           );
         })}
@@ -147,7 +151,9 @@ export default function PricingSection() {
             <li><span>E-mailová + telefonická podpora</span></li>
             <li><span>Zmena sumy kedykoľvek</span></li>
           </ul>
-          <button className="plan-cta" onClick={() => setOpen(true)}>Aktivovať za {fmt(custom + SERVICE_FEE)} €/mes.</button>
+          <Link href={`/registracia?plan=custom&amount=${custom}`} className="plan-cta" style={{ display: 'block', textAlign: 'center', textDecoration: 'none' }}>
+            Aktivovať za {fmt(custom + SERVICE_FEE)} €/mes.
+          </Link>
         </div>
       </div>
 
@@ -156,8 +162,6 @@ export default function PricingSection() {
         <div><strong>Sedenie u Hedepy, Ksebe a Mojra stojí ~50–70 € / 50 min.</strong> Pri pláne Stabilita si nasporíte na sedenie každé dva mesiace. Pri Rytme každý mesiac.</div>
         <div><strong>Bez viazanosti, bez prepadu.</strong> Predplatné zrušíte kedykoľvek. Naakumulované kredity ostávajú vaše ďalších 12 mesiacov.</div>
       </div>
-
-      {open && <WaitlistModal onClose={() => setOpen(false)} />}
     </section>
   );
 }

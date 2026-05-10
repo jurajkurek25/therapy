@@ -1,6 +1,7 @@
 import PublicNav from '@/components/PublicNav';
 import Footer from '@/components/Footer';
 import PricingSection from '@/components/PricingSection';
+import Link from 'next/link';
 
 export default function Home() {
   return (
@@ -27,8 +28,8 @@ export default function Home() {
                 Teraplan je predplatné, ktoré z bežného mesačného poplatku tvorí kredity. Z kreditov si zameníte darčekový kód pre Hedepy, Ksebe alebo Mojra a sedenie si rezervujete rovno u partnera. Bez katalógu, bez stresu z výberu.
               </p>
               <div className="hero-cta">
-                <a href="#pricing" className="btn btn-primary">Vybrať plán</a>
-                <a href="#how" className="btn btn-ghost">Ako to funguje →</a>
+                <Link href="/registracia" className="btn btn-primary">Vybrať plán →</Link>
+                <a href="#how" className="btn btn-ghost">Ako to funguje</a>
               </div>
             </div>
           </div>
@@ -111,7 +112,7 @@ export default function Home() {
                 Ak vám kreditov nestačí na sedenie, ktoré chcete teraz, jednoducho si dokúpite presne toľko, koľko vám chýba. Žiadny minimálny balík, žiadna viazanosť.
               </p>
               <div style={{ marginTop: 32, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-                <a href="#how" className="btn btn-primary">Ako to funguje →</a>
+                <Link href="/registracia" className="btn btn-primary">Začať šetriť →</Link>
                 <a href="#partners" className="btn btn-ghost">Naši partneri</a>
               </div>
             </div>
@@ -331,8 +332,8 @@ export default function Home() {
           Aktivácia trvá pod päť minút. Prvý kredit dostanete okamžite po prvej platbe — a od dnes začínate.
         </p>
         <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-          <a href="#pricing" className="btn btn-primary">Vybrať plán</a>
-          <a href="#how" className="btn btn-ghost">Pozrieť ako to funguje →</a>
+          <Link href="/registracia" className="btn btn-primary">Vybrať plán →</Link>
+          <a href="#how" className="btn btn-ghost">Ako to funguje</a>
         </div>
       </section>
 

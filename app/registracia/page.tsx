@@ -24,7 +24,9 @@ function RegisterContent() {
   useEffect(() => {
     const p = searchParams.get('plan');
     if (p === 'start' || p === 'stabilita' || p === 'rytmus') setPlan(p);
-    if (searchParams.get('canceled') === '1') setError('Platba bola zrušená. Skúste to znova.');
+    if (searchParams.get('canceled') === '1') {
+      setError('Platba bola zrušená. Zadajte údaje znova a skúste to.');
+    }
   }, [searchParams]);
 
   const handleStep1 = (e: React.FormEvent) => {

@@ -1,30 +1,31 @@
 'use client';
 import { useState, useEffect, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { signIn } from 'next-auth/react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Brand from '@/components/Brand';
-import { setLoggedIn, saveUser, getUser } from '@/lib/store';
 
 const PLANS = [
-  { id: 'start', label: 'Štart', monthly: 9, total: '11,90', credits: 9 },
+  { id: 'start',     label: 'Štart',     monthly: 9,  total: '11,90', credits: 9 },
   { id: 'stabilita', label: 'Stabilita', monthly: 30, total: '32,90', credits: 30 },
-  { id: 'rytmus', label: 'Rytmus', monthly: 60, total: '62,90', credits: 60 },
+  { id: 'rytmus',    label: 'Rytmus',    monthly: 60, total: '62,90', credits: 60 },
 ];
 
 function RegisterContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [step, setStep] = useState<1 | 2>(1);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [plan, setPlan] = useState<'start' | 'stabilita' | 'rytmus'>('stabilita');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const p = searchParams.get('plan');
     if (p === 'start' || p === 'stabilita' || p === 'rytmus') setPlan(p);
+    if (searchParams.get('canceled') === '1') setError('Platba bola zrušená. Skúste to znova.');
   }, [searchParams]);
-  const [loading, setLoading] = useState(false);
 
   const handleStep1 = (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,11 +35,24 @@ function RegisterContent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 800));
-    const user = getUser();
-    saveUser({ ...user, name, email, plan });
-    setLoggedIn(true);
-    router.push('/dashboard');
+    setError('');
+
+    const res = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password, plan }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      setError(data.error || 'Registrácia zlyhala.');
+      setLoading(false);
+      return;
+    }
+
+    // Sign in immediately so session is active when Stripe redirects back
+    await signIn('credentials', { email, password, redirect: false });
+    window.location.href = data.checkoutUrl;
   };
 
   return (
@@ -56,9 +70,7 @@ function RegisterContent() {
             {step === 1 ? 'Vytvorte si účet a začnite šetriť na seba.' : 'Vyberte si plán, ktorý vám sedí.'}
           </p>
           <p style={{ marginTop: 20, fontSize: 14, opacity: 0.6, lineHeight: 1.55 }}>
-            {step === 1
-              ? 'Registrácia trvá menej ako dve minúty. Žiadna kreditná karta, kým si nevyberiete plán.'
-              : 'Kurz je rovnaký u všetkých plánov: 1 € = 1 kredit. Plán môžete kedykoľvek zmeniť.'}
+            {step === 1 ? 'Registrácia trvá menej ako dve minúty.' : 'Kurz je rovnaký u všetkých plánov: 1 € = 1 kredit.'}
           </p>
         </div>
         <div style={{ fontFamily: 'var(--mono)', fontSize: 11, opacity: 0.4, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
@@ -68,6 +80,8 @@ function RegisterContent() {
 
       <div className="auth-right">
         <div className="auth-form">
+          {error && <div className="status-bar error" style={{ marginBottom: 20 }}>⚠ {error}</div>}
+
           {step === 1 ? (
             <>
               <span className="eyebrow" style={{ display: 'block', marginBottom: 20 }}>Registrácia · Krok 1</span>
@@ -76,17 +90,21 @@ function RegisterContent() {
               <form onSubmit={handleStep1}>
                 <div className="field">
                   <label>Celé meno</label>
-                  <input type="text" placeholder="Jana Nováková" value={name} onChange={(e) => setName(e.target.value)} required autoFocus />
+                  <input type="text" placeholder="Jana Nováková" value={name}
+                    onChange={(e) => setName(e.target.value)} required autoFocus />
                 </div>
                 <div className="field">
                   <label>E-mail</label>
-                  <input type="email" placeholder="vas@email.sk" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                  <input type="email" placeholder="vas@email.sk" value={email}
+                    onChange={(e) => setEmail(e.target.value)} required />
                 </div>
                 <div className="field">
                   <label>Heslo</label>
-                  <input type="password" placeholder="min. 8 znakov" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} />
+                  <input type="password" placeholder="min. 8 znakov" value={password}
+                    onChange={(e) => setPassword(e.target.value)} required minLength={8} />
                 </div>
-                <button type="submit" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center', borderRadius: 0, marginTop: 8 }}>
+                <button type="submit" className="btn btn-primary"
+                  style={{ width: '100%', justifyContent: 'center', borderRadius: 0, marginTop: 8 }}>
                   Pokračovať →
                 </button>
               </form>
@@ -100,7 +118,9 @@ function RegisterContent() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
                   {PLANS.map((p) => (
                     <label key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '16px 18px', border: `1px solid ${plan === p.id ? 'var(--ink)' : 'var(--rule-2)'}`, background: plan === p.id ? 'var(--paper)' : 'transparent', cursor: 'pointer', transition: 'all 0.15s' }}>
-                      <input type="radio" name="plan" value={p.id} checked={plan === p.id} onChange={() => setPlan(p.id as typeof plan)} style={{ accentColor: 'var(--accent-ink)' }} />
+                      <input type="radio" name="plan" value={p.id} checked={plan === p.id}
+                        onChange={() => setPlan(p.id as typeof plan)}
+                        style={{ accentColor: 'var(--accent-ink)' }} />
                       <div style={{ flex: 1 }}>
                         <div style={{ fontFamily: 'var(--serif)', fontSize: 20, letterSpacing: '-0.01em' }}>{p.label}</div>
                         <div style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>→ {p.credits} kreditov mesačne</div>
@@ -117,8 +137,9 @@ function RegisterContent() {
                 </div>
                 <div style={{ display: 'flex', gap: 10 }}>
                   <button type="button" className="btn btn-ghost" style={{ borderRadius: 0 }} onClick={() => setStep(1)}>← Späť</button>
-                  <button type="submit" className="btn btn-primary" style={{ flex: 1, justifyContent: 'center', borderRadius: 0 }} disabled={loading}>
-                    {loading ? 'Vytváram účet…' : 'Aktivovať plán →'}
+                  <button type="submit" className="btn btn-primary"
+                    style={{ flex: 1, justifyContent: 'center', borderRadius: 0 }} disabled={loading}>
+                    {loading ? 'Presmerovávam na platbu…' : 'Aktivovať plán →'}
                   </button>
                 </div>
               </form>

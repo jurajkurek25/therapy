@@ -1,9 +1,9 @@
 'use client';
 import { useState } from 'react';
+import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Brand from '@/components/Brand';
-import { setLoggedIn } from '@/lib/store';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -14,17 +14,16 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) return;
     setLoading(true);
     setError('');
-    await new Promise((r) => setTimeout(r, 600));
-    if (password.length < 4) {
-      setError('Nesprávne prihlasovacie údaje.');
+
+    const res = await signIn('credentials', { email, password, redirect: false });
+    if (res?.error) {
+      setError('Nesprávny e-mail alebo heslo.');
       setLoading(false);
-      return;
+    } else {
+      router.push('/dashboard');
     }
-    setLoggedIn(true);
-    router.push('/dashboard');
   };
 
   return (
@@ -36,18 +35,12 @@ export default function LoginPage() {
             &ldquo;Každé euro sa pretáva na kredit, ktorý ostáva váš dovtedy, kým ho použijete.&rdquo;
           </p>
           <div style={{ display: 'flex', gap: 32 }}>
-            <div>
-              <div style={{ fontFamily: 'var(--serif)', fontSize: 36, lineHeight: 1 }}>1 € = 1</div>
-              <div style={{ fontFamily: 'var(--mono)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.6, marginTop: 6 }}>kredit</div>
-            </div>
-            <div>
-              <div style={{ fontFamily: 'var(--serif)', fontSize: 36, lineHeight: 1 }}>3</div>
-              <div style={{ fontFamily: 'var(--mono)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.6, marginTop: 6 }}>partneri</div>
-            </div>
-            <div>
-              <div style={{ fontFamily: 'var(--serif)', fontSize: 36, lineHeight: 1 }}>AI</div>
-              <div style={{ fontFamily: 'var(--mono)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.6, marginTop: 6 }}>poradca</div>
-            </div>
+            {[['1 € = 1', 'kredit'], ['3', 'partneri'], ['AI', 'poradca']].map(([val, lbl]) => (
+              <div key={lbl}>
+                <div style={{ fontFamily: 'var(--serif)', fontSize: 36, lineHeight: 1 }}>{val}</div>
+                <div style={{ fontFamily: 'var(--mono)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.6, marginTop: 6 }}>{lbl}</div>
+              </div>
+            ))}
           </div>
         </div>
         <div style={{ fontFamily: 'var(--mono)', fontSize: 11, opacity: 0.4, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
@@ -61,42 +54,28 @@ export default function LoginPage() {
           <h1>Vitajte<br /><em>späť.</em></h1>
           <p className="subtitle">Prihláste sa do svojej kreditovej peňaženky.</p>
 
-          {error && (
-            <div className="status-bar error" style={{ marginBottom: 20 }}>
-              ⚠ {error}
-            </div>
-          )}
+          {error && <div className="status-bar error" style={{ marginBottom: 20 }}>⚠ {error}</div>}
 
           <form onSubmit={handleSubmit}>
             <div className="field">
               <label>E-mail</label>
-              <input
-                type="email" placeholder="vas@email.sk"
-                value={email} onChange={(e) => setEmail(e.target.value)}
-                required autoFocus
-              />
+              <input type="email" placeholder="vas@email.sk" value={email}
+                onChange={(e) => setEmail(e.target.value)} required autoFocus />
             </div>
             <div className="field">
               <label>Heslo</label>
-              <input
-                type="password" placeholder="••••••••"
-                value={password} onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+              <input type="password" placeholder="••••••••" value={password}
+                onChange={(e) => setPassword(e.target.value)} required />
             </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 24 }}>
-              <a href="#" style={{ fontSize: 13, color: 'var(--muted)', textDecoration: 'underline' }}>Zabudnuté heslo?</a>
-            </div>
-            <button type="submit" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center', borderRadius: 0 }} disabled={loading}>
+            <button type="submit" className="btn btn-primary"
+              style={{ width: '100%', justifyContent: 'center', borderRadius: 0 }} disabled={loading}>
               {loading ? 'Prihlasujem…' : 'Prihlásiť sa →'}
             </button>
           </form>
 
           <div style={{ marginTop: 28, paddingTop: 28, borderTop: '1px solid var(--rule)', textAlign: 'center', fontSize: 14, color: 'var(--muted)' }}>
             Nemáte účet?{' '}
-            <Link href="/registracia" style={{ color: 'var(--ink)', textDecoration: 'underline' }}>
-              Zaregistrovať sa
-            </Link>
+            <Link href="/registracia" style={{ color: 'var(--ink)', textDecoration: 'underline' }}>Zaregistrovať sa</Link>
           </div>
           <div style={{ marginTop: 16, textAlign: 'center' }}>
             <Link href="/" style={{ fontSize: 13, color: 'var(--muted)' }}>← Späť na úvod</Link>

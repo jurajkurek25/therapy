@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                   String        @id @default(cuid())
+  name                 String
+  email                String        @unique
+  password             String
+  plan                 String        @default("stabilita")
+  credits              Float         @default(0)
+  sosDebt              Float         @default(0)
+  memberMonths         Int           @default(0)
+  stripeCustomerId     String?       @unique
+  stripeSubscriptionId String?
+  subscriptionStatus   String        @default("inactive")
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+  transactions         Transaction[]
+  vouchers             Voucher[]
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount      Float
+  type        String
+  description String
+  createdAt   DateTime @default(now())
+}
+
+model Voucher {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  partnerId   String
+  partnerName String
+  code        String   @unique
+  amount      Float
+  used        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}

@@ -3,7 +3,7 @@ module.exports = {
     name: 'teraplan',
     script: 'npm',
     args: 'start',
-    cwd: '/home/user/therapy',
+    cwd: '/home/teraplan/htdocs/teraplan.eu',
     env: {
       NODE_ENV: 'production',
       PORT: 3210,

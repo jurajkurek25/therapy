@@ -22,15 +22,19 @@ function VouchersContent() {
   const [error, setError] = useState('');
 
   const loadAll = async () => {
-    const [uRes, cRes] = await Promise.all([
-      fetch('/api/user'),
-      fetch('/api/voucher'),
-    ]);
-    const uData = await uRes.json();
-    const cData = await cRes.json();
-    setUser(uData);
-    setCatalog(cData.catalog || []);
-    if (!selected && cData.catalog?.length > 0) setSelected(cData.catalog[0]);
+    try {
+      const [uRes, cRes] = await Promise.all([
+        fetch('/api/user'),
+        fetch('/api/voucher'),
+      ]);
+      const uData = uRes.ok ? await uRes.json() : null;
+      const cData = cRes.ok ? await cRes.json() : {};
+      setUser(uData);
+      setCatalog(cData.catalog || []);
+      if (!selected && cData.catalog?.length > 0) setSelected(cData.catalog[0]);
+    } catch {
+      setUser({});
+    }
   };
 
   useEffect(() => {
@@ -73,7 +77,7 @@ function VouchersContent() {
   const copyCode = (code: string) => navigator.clipboard.writeText(code).catch(() => {});
   const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('sk-SK');
 
-  if (status === 'loading' || !user) return null;
+  if (status === 'loading' || user === null) return null;
 
   const sosEligible = user.memberMonths >= 3 && user.sosDebt === 0;
   const notEnough = selected ? user.credits < selected.amount : false;

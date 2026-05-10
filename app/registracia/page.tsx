@@ -37,22 +37,33 @@ function RegisterContent() {
     setLoading(true);
     setError('');
 
-    const res = await fetch('/api/auth/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password, plan }),
-    });
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password, plan }),
+      });
 
-    const data = await res.json();
-    if (!res.ok) {
-      setError(data.error || 'Registrácia zlyhala.');
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || 'Registrácia zlyhala.');
+        setLoading(false);
+        return;
+      }
+
+      if (!data.checkoutUrl) {
+        setError('Nepodarilo sa vytvoriť platobnú reláciu.');
+        setLoading(false);
+        return;
+      }
+
+      // Sign in so session is active when Stripe redirects back
+      await signIn('credentials', { email, password, redirect: false });
+      window.location.href = data.checkoutUrl;
+    } catch (err) {
+      setError('Chyba siete. Skúste to znova.');
       setLoading(false);
-      return;
     }
-
-    // Sign in immediately so session is active when Stripe redirects back
-    await signIn('credentials', { email, password, redirect: false });
-    window.location.href = data.checkoutUrl;
   };
 
   return (

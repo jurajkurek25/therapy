@@ -4,6 +4,8 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { stripe } from '@/lib/stripe';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -33,7 +35,6 @@ export async function POST(req: NextRequest) {
     metadata: { userId, credits: amount.toString(), type: 'topup' },
     success_url: `${process.env.NEXTAUTH_URL}/dashboard?topup=1`,
     cancel_url:  `${process.env.NEXTAUTH_URL}/dokup`,
-    locale: 'sk',
   });
 
   return NextResponse.json({ checkoutUrl: checkoutSession.url });

@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import { stripe, PLANS, type PlanId } from '@/lib/stripe';
 import bcrypt from 'bcryptjs';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: NextRequest) {
   try {
     const { name, email, password, plan, customAmount } = await req.json();

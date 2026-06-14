@@ -31,6 +31,19 @@ function stripRecommendations(text: string): string {
   return text.replace(/\*\*[^*]+\*\*\s*—\s*[^—]+—\s*[^—]+—\s*https?:\/\/\S+/g, '').replace(/\n{3,}/g, '\n\n').trim();
 }
 
+function renderBold(text: string): React.ReactNode {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  return (
+    <>
+      {parts.map((p, i) =>
+        p.startsWith('**') && p.endsWith('**')
+          ? <strong key={i}>{p.slice(2, -2)}</strong>
+          : p
+      )}
+    </>
+  );
+}
+
 export default function AIPage() {
   const { data: session, status } = useSession();
   const [user, setUser] = useState<any>(null);
@@ -157,8 +170,10 @@ export default function AIPage() {
                 <div key={m.id} className={`chat-msg ${m.role === 'user' ? 'user' : 'ai'}`}>
                   <div className="msg-who">{m.role === 'user' ? 'Vy' : 'Teraplan AI'}</div>
                   <div className="msg-bubble" style={{ whiteSpace: 'pre-wrap' }}>
-                    {text}
-                    {isStreaming && <span style={{ opacity: 0.4, animation: 'pulse 1s infinite' }}>▊</span>}
+                    {text.split('\n').map((line, i) => (
+                      <span key={i}>{renderBold(line)}{i < text.split('\n').length - 1 ? '\n' : ''}</span>
+                    ))}
+                    {isStreaming && <span style={{ opacity: 0.4 }}>▊</span>}
                   </div>
                   {recs.map((r, i) => (
                     <a key={i} href={r.url} target="_blank" rel="noopener noreferrer"
